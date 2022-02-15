@@ -93,10 +93,17 @@ class DropBoxController {
         return new Promise((resolve, reject) => {
 
             let folderRef = this.getFirebaseRef(ref + '/' + name);
+                
+            if(folderRef.off('value') === undefined) {
+
+                this.removeFolderTask('dropbox', folderRef.path.pieces_[1]).then(() => { return }).catch(() => { return });
+                return resolve();
+            }
 
             folderRef.on('value', snapshot => {
-
+                
                 folderRef.off('value');
+
 
                 snapshot.forEach(item => {
 
@@ -141,7 +148,7 @@ class DropBoxController {
                     }
 
                 });
-
+                
                 folderRef.remove();
 
             });
@@ -342,7 +349,6 @@ class DropBoxController {
     getFirebaseRef(path) {
 
         if(!path) path = this.currentFolder.join('/');
-
         return firebase.database().ref(path);
 
     }
